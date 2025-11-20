@@ -46,11 +46,10 @@ class SecondActivity : AppCompatActivity() {
         }
 
         // Open Google Maps (example: UNB)
-//        navBtn.setOnClickListener {
-//            val mapIntent = Intent(this, direction::class.java)
-//            mapIntent.setPackage("com.google.android.apps.maps")
-//            startActivity(mapIntent)
-//        }
+        navBtn.setOnClickListener {
+            val mapIntent = Intent(this, direction::class.java)
+            startActivity(mapIntent)
+        }
 
 
     }

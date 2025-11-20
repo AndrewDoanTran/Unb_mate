@@ -39,7 +39,7 @@
         <!-- Add your SecondActivity here -->
         <activity android:name=".SecondActivity" />
         <activity android:name=".Calender"/>
-
+        <activity android:name= ".direction" />
         <receiver
             android:name=".AlarmReceiver"
             android:exported="true" />
