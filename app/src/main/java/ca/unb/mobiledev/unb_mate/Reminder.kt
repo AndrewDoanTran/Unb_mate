@@ -14,5 +14,3 @@ data class Reminder(
 )
 
 
-//From my understanding that entry seem like the json file, one element contains so many informations
-//

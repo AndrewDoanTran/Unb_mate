@@ -151,6 +151,12 @@ class Calender : AppCompatActivity() {
             deleteReminder.visibility = View.GONE
 
             // Observe reminders
+            val format = SimpleDateFormat("dd-MM-yyyy HH:mm", Locale.getDefault())
+            val now = format.format(Date())
+            lifecycleScope.launch {
+                reminderDatabase.reminderDao().deletePastReminders(now)
+            }
+
             reminderDatabase.reminderDao().getAllReminders().observe(this) { reminders ->
                 recyclerView.adapter = ReminderAdapter(reminders)
             }
