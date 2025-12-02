@@ -9,7 +9,9 @@ import android.os.Bundle
 import android.view.View
 import android.widget.Button
 import android.widget.EditText
+import android.widget.ImageView
 import android.widget.LinearLayout
+import android.widget.TextView
 import android.widget.Toast
 import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AppCompatActivity
@@ -37,6 +39,10 @@ class Calender : AppCompatActivity() {
 
     private lateinit var testingNofication : Button
 
+    private lateinit var heading : TextView
+
+    private lateinit var imageLogo : ImageView
+
     private lateinit var deleteReminder : Button
 
     @SuppressLint("MissingInflatedId")
@@ -54,6 +60,8 @@ class Calender : AppCompatActivity() {
         recyclerView.layoutManager = LinearLayoutManager(this)
 
         // Initialize views
+        heading = findViewById(R.id.Label)
+        imageLogo = findViewById(R.id.logoImage)
         assignmentName = findViewById(R.id.assignmentTitle)
         className = findViewById(R.id.className)
         date = findViewById(R.id.dueDate)
@@ -142,6 +150,8 @@ class Calender : AppCompatActivity() {
 
             // Show RecyclerView
             recyclerView.visibility = View.VISIBLE
+            heading.visibility = View.GONE
+            imageLogo.visibility = View.GONE
             assignmentName.visibility = View.GONE
             className.visibility = View.GONE
             date.visibility = View.GONE
@@ -149,6 +159,7 @@ class Calender : AppCompatActivity() {
             submitButton.visibility = View.GONE
             viewSchedule.visibility = View.GONE
             deleteReminder.visibility = View.GONE
+
 
             // Observe reminders
             val format = SimpleDateFormat("dd-MM-yyyy HH:mm", Locale.getDefault())

@@ -8,11 +8,15 @@
     android:layout_height="match_parent"
     android:padding="16dp">
 
+    <!-- Label -->
+
+    <!-- Assignment Title -->
     <TextView
         android:id="@+id/Label"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:layout_marginTop="52dp"
+        android:layout_marginTop="64dp"
+        android:gravity="center"
         android:text="Please enter information of reminder you want to add or delete!"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.0"
@@ -23,13 +27,13 @@
         android:id="@+id/assignmentTitle"
         android:layout_width="0dp"
         android:layout_height="55dp"
-        android:layout_marginTop="16dp"
+        android:layout_marginTop="12dp"
         android:hint="Enter the title of Assignment"
         app:layout_constraintTop_toBottomOf="@id/Label"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent" />
+        app:layout_constraintEnd_toEndOf="parent"/>
 
-
+    <!-- Class Name -->
     <EditText
         android:id="@+id/className"
         android:layout_width="0dp"
@@ -38,9 +42,9 @@
         android:hint="Enter Class Name"
         app:layout_constraintTop_toBottomOf="@id/assignmentTitle"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent" />
+        app:layout_constraintEnd_toEndOf="parent"/>
 
-    <!-- Due date -->
+    <!-- Due Date -->
     <EditText
         android:id="@+id/dueDate"
         android:layout_width="0dp"
@@ -49,63 +53,57 @@
         android:hint="Enter Due Date (D-M-Y)"
         app:layout_constraintTop_toBottomOf="@id/className"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent" />
+        app:layout_constraintEnd_toEndOf="parent"/>
 
-
-    <!--Due Time-->
+    <!-- Due Time -->
     <EditText
         android:id="@+id/dueTime"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_marginTop="12dp"
         android:hint="Enter Due Time (HH:MM)"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.0"
+        app:layout_constraintTop_toBottomOf="@id/dueDate"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/dueDate" />
+        app:layout_constraintEnd_toEndOf="parent"/>
 
+    <!-- Add Button -->
     <Button
         android:id="@+id/submitButton"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginTop="24dp"
+        android:layout_marginTop="16dp"
         android:text="Add to Reminder"
+        android:textColor="#FFFFFF"
+        app:backgroundTint="#FF0000"
         app:layout_constraintTop_toBottomOf="@id/dueTime"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent" />
+        app:layout_constraintEnd_toEndOf="parent"/>
 
-    <!-- View schedule button -->
+    <!-- View Schedule Button -->
     <Button
         android:id="@+id/viewDueDate"
         android:layout_width="154dp"
         android:layout_height="44dp"
         android:layout_marginTop="16dp"
         android:text="View Schedule"
-        app:layout_constraintEnd_toEndOf="parent"
+        android:textColor="#FFFFFF"
+        app:backgroundTint="#FF0000"
+        app:layout_constraintTop_toBottomOf="@id/submitButton"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/submitButton" />
+        app:layout_constraintEnd_toEndOf="parent"/>
 
-
+    <!-- Delete Button -->
     <Button
         android:id="@+id/deleteReminder"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginTop="16dp"
         android:text="Delete Reminder"
+        android:textColor="#FFFFFF"
+        app:backgroundTint="#FF0000"
         app:layout_constraintTop_toBottomOf="@id/viewDueDate"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent" />
-
-
-<!--    <Button-->
-<!--        android:id="@+id/testingNofication"-->
-<!--        android:layout_width="wrap_content"-->
-<!--        android:layout_height="wrap_content"-->
-<!--        android:layout_marginTop="16dp"-->
-<!--        android:text="Test nofi"-->
-<!--        app:layout_constraintTop_toBottomOf="@id/viewDueDate"-->
-<!--        app:layout_constraintStart_toStartOf="parent"-->
-<!--        app:layout_constraintEnd_toEndOf="parent" />-->
+        app:layout_constraintEnd_toEndOf="parent"/>
 
     <!-- RecyclerView -->
     <androidx.recyclerview.widget.RecyclerView
@@ -114,9 +112,22 @@
         android:layout_height="0dp"
         android:layout_marginTop="16dp"
         android:visibility="gone"
-
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintBottom_toBottomOf="parent" />
+        app:layout_constraintBottom_toTopOf="@id/logoImage"/>
+
+    <!-- Bottom Logo Image -->
+    <ImageView
+        android:id="@+id/logoImage"
+        android:layout_width="94dp"
+        android:layout_height="97dp"
+        android:layout_marginBottom="8dp"
+        android:contentDescription="UNB Logo"
+        android:scaleType="fitCenter"
+        android:src="@drawable/unb_small_logo"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="1.0"
+        app:layout_constraintStart_toStartOf="parent" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>
