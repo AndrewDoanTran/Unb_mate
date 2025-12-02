@@ -192,4 +192,5 @@
         app:layout_constraintEnd_toEndOf="@id/mapImage"/>
 
 
+
 </androidx.constraintlayout.widget.ConstraintLayout>

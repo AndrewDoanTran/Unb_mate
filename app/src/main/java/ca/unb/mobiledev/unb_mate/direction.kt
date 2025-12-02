@@ -1,10 +1,17 @@
 package ca.unb.mobiledev.unb_mate
 
+import android.content.Intent
 import android.os.Bundle
+import android.speech.RecognizerIntent
 import android.widget.EditText
 import android.widget.ImageView
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.widget.addTextChangedListener
+import java.util.Locale
+import androidx.core.app.ActivityCompat
+import android.content.pm.PackageManager
+import android.widget.Toast
+import kotlin.math.hypot
 
 class direction : AppCompatActivity() {
 
@@ -28,6 +35,20 @@ class direction : AppCompatActivity() {
     private lateinit var intersection3: ImageView
     private lateinit var intersection4: ImageView
     private lateinit var intersection5: ImageView
+
+    private val REQUEST_CODE_SPEECH_START = 100
+    private val REQUEST_CODE_SPEECH_END = 101
+
+    // Dot class to store ImageView and name
+    data class Dot(val name: String, val image: ImageView)
+
+    // Predefined routes
+    private lateinit var route1: List<Dot>
+    private lateinit var route2: List<Dot>
+    private lateinit var route3: List<Dot>
+    private lateinit var route4: List<Dot>
+    private lateinit var route5: List<Dot>
+    private lateinit var route6: List<Dot>
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -56,13 +77,25 @@ class direction : AppCompatActivity() {
 
         val startInput = findViewById<EditText>(R.id.startingLocat)
         val endInput = findViewById<EditText>(R.id.endingLocat)
+        val micButtonInput = findViewById<ImageView>(R.id.startMicButton)
+        val micButtonEnd = findViewById<ImageView>(R.id.destMicButton)
 
         startInput.addTextChangedListener {
             updateStartAndEnd(startInput.text.toString(), endInput.text.toString())
         }
-
         endInput.addTextChangedListener {
             updateStartAndEnd(startInput.text.toString(), endInput.text.toString())
+        }
+
+        if (ActivityCompat.checkSelfPermission(
+                this,
+                android.Manifest.permission.RECORD_AUDIO
+            ) != PackageManager.PERMISSION_GRANTED
+        ) {
+            ActivityCompat.requestPermissions(
+                this,
+                arrayOf(android.Manifest.permission.RECORD_AUDIO), 200
+            )
         }
 
         // Position all dots on the map
@@ -90,6 +123,61 @@ class direction : AppCompatActivity() {
             placeDot(intersection3, 120f, 250f)
             placeDot(intersection4, 190f, 250f)
             placeDot(intersection5, 350f, 340f)
+
+            // Initialize routes with Dot objects
+            route1 = listOf(
+                Dot("student union", studentUnionDot),
+                Dot("intersection1", intersection1),
+                Dot("library", libraryDot),
+                Dot("intersection2", intersection2),
+                Dot("keirstead", keirsteadDot),
+                Dot("security", securityDot),
+                Dot("maclagan", macLaganDot),
+                Dot("intersection5", intersection5),
+                Dot("head hall", headHallDot)
+            )
+
+            route2 = listOf(
+                Dot("student union", studentUnionDot),
+                Dot("intersection1", intersection1),
+                Dot("intersection3", intersection3),
+                Dot("toole", tooleHallDot),
+                Dot("forestry", forestryDot),
+                Dot("intersection5", intersection5),
+                Dot("head hall", headHallDot)
+            )
+
+            route3 = listOf(
+                Dot("student union", studentUnionDot),
+                Dot("library", libraryDot),
+                Dot("intersection1", intersection1),
+                Dot("intersection3", intersection3),
+                Dot("toole", tooleHallDot),
+                Dot("intersection4", intersection4),
+                Dot("intersection2", intersection2)
+            )
+
+            route4 = listOf(
+                Dot("toole", tooleHallDot),
+                Dot("forestry", forestryDot),
+                Dot("intersection5", intersection5),
+                Dot("head hall", headHallDot)
+            )
+
+            route5 = listOf(
+                Dot("toole", tooleHallDot),
+                Dot("intersection4", intersection4),
+                Dot("keirstead", keirsteadDot)
+            )
+
+            route6 = listOf(
+                Dot("forestry", forestryDot),
+                Dot("intersection5", intersection5),
+                Dot("maclagan", macLaganDot),
+                Dot("security", securityDot),
+                Dot("keirstead", keirsteadDot),
+                Dot("library", libraryDot)
+            )
         }
     }
 
@@ -105,7 +193,7 @@ class direction : AppCompatActivity() {
             "toole" to tooleHallDot
         )
 
-        // Make all connecting dots visible
+        // Make all dots visible
         buildingMap.values.forEach { it.visibility = ImageView.VISIBLE }
         intersection1.visibility = ImageView.VISIBLE
         intersection2.visibility = ImageView.VISIBLE
@@ -113,7 +201,6 @@ class direction : AppCompatActivity() {
         intersection4.visibility = ImageView.VISIBLE
         intersection5.visibility = ImageView.VISIBLE
 
-        // Hide start and end dots first
         startDot.visibility = ImageView.INVISIBLE
         endDot.visibility = ImageView.INVISIBLE
 
@@ -137,53 +224,91 @@ class direction : AppCompatActivity() {
 
         // Draw route if both start and end are provided
         if (startName.isNotBlank() && endName.isNotBlank()) {
-            drawRouteLines()
+            val shortestPath = findShortestRouteSegment(startName.lowercase(), endName.lowercase())
+            shortestPath?.let { drawRouteLines(it) }
         } else {
             findViewById<LineView>(R.id.lineView).setLines(emptyList())
         }
     }
 
-    private fun drawRouteLines() {
+    // Calculate total distance along a segment
+    private fun totalDistance(segment: List<Dot>): Float {
+        var distance = 0f
+        for (i in 0 until segment.size - 1) {
+            distance += distanceBetween(segment[i].image, segment[i + 1].image)
+        }
+        return distance
+    }
+
+    private fun distanceBetween(a: ImageView, b: ImageView): Float {
+        val x1 = a.x + a.width / 2f
+        val y1 = a.y + a.height / 2f
+        val x2 = b.x + b.width / 2f
+        val y2 = b.y + b.height / 2f
+        return hypot((x1 - x2), (y1 - y2))
+    }
+
+    // Find the shortest segment from start to end among predefined routes
+    private fun findShortestRouteSegment(startName: String, endName: String): List<Dot>? {
+        val routes = listOf(route1, route2, route3, route4, route5, route6)
+        var shortestDistance = Float.MAX_VALUE
+        var bestSegment: List<Dot>? = null
+
+        for (route in routes) {
+            val startIndex = route.indexOfFirst { it.name.equals(startName, ignoreCase = true) }
+            val endIndex = route.indexOfFirst { it.name.equals(endName, ignoreCase = true) }
+
+            if (startIndex != -1 && endIndex != -1) {
+                // start -> end
+                if (startIndex < endIndex) {
+                    val segment = route.subList(startIndex, endIndex + 1)
+                    val distance = totalDistance(segment)
+                    if (distance < shortestDistance) {
+                        shortestDistance = distance
+                        bestSegment = segment
+                    }
+                }
+                // end -> start (reverse)
+                if (endIndex < startIndex) {
+                    val segment = route.subList(endIndex, startIndex + 1).reversed()
+                    val distance = totalDistance(segment)
+                    if (distance < shortestDistance) {
+                        shortestDistance = distance
+                        bestSegment = segment
+                    }
+                }
+            }
+        }
+        return bestSegment
+    }
+
+    private fun drawRouteLines(routeSegment: List<Dot>) {
         val lineView = findViewById<LineView>(R.id.lineView)
-
-        val startPos = Pair(startDot.x + startDot.width / 2f, startDot.y + startDot.height / 2f)
-        val endPos = Pair(endDot.x + endDot.width / 2f, endDot.y + endDot.height / 2f)
-
-        val allDots = listOf(
-            libraryDot, studentUnionDot, keirsteadDot,
-            securityDot, macLaganDot, headHallDot,
-            forestryDot, tooleHallDot,
-            intersection1, intersection2, intersection3,
-            intersection4, intersection5
-        )
-
-        val availableDots = allDots.filter { it.visibility == ImageView.VISIBLE }
-            .map { Pair(it.x + it.width / 2f, it.y + it.height / 2f) }
-            .toMutableList()
-
-        val path = mutableListOf<Pair<Float, Float>>()
-        path.add(startPos)
-
-        var current = startPos
-
-        while (availableDots.isNotEmpty()) {
-            val closest = availableDots.minByOrNull { distance(it, current) } ?: break
-            path.add(closest)
-            current = closest
-            availableDots.remove(closest)
+        val lines = routeSegment.zipWithNext { a, b ->
+            LineView.Line(
+                a.image.x + a.image.width / 2f,
+                a.image.y + a.image.height / 2f,
+                b.image.x + b.image.width / 2f,
+                b.image.y + b.image.height / 2f
+            )
         }
-
-        path.add(endPos)
-
-        val lines = path.zipWithNext { a, b ->
-            LineView.Line(a.first, a.second, b.first, b.second)
-        }
-
         lineView.setLines(lines)
     }
 
-    private fun distance(a: Pair<Float, Float>, b: Pair<Float, Float>): Float
-    {
-        return Math.hypot((a.first - b.first).toDouble(), (a.second - b.second).toDouble()).toFloat()
+    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
+        super.onActivityResult(requestCode, resultCode, data)
+
+        if (resultCode == RESULT_OK && data != null) {
+            val results = data.getStringArrayListExtra(RecognizerIntent.EXTRA_RESULTS)
+            val result = results?.get(0) ?: ""
+            Toast.makeText(this, "Recognized: $result", Toast.LENGTH_SHORT).show()
+
+            when (requestCode) {
+                REQUEST_CODE_SPEECH_START -> findViewById<EditText>(R.id.startingLocat).setText(result)
+                REQUEST_CODE_SPEECH_END -> findViewById<EditText>(R.id.endingLocat).setText(result)
+            }
+        } else {
+            Toast.makeText(this, "Speech not recognized", Toast.LENGTH_SHORT).show()
+        }
     }
 }
